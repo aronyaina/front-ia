@@ -20,8 +20,8 @@ export async function POST(req: Request) {
       return new NextResponse("Message are required", { status: 400 })
     }
 
-    payload.inputs = messages[0]
-    const response = await axios.post(`${configuration}/texts/text`,
+    payload.inputs = messages[messages.length - 1].content
+    const response = await axios.post(`${configuration}/texts/summerization`,
       payload
       , {
         headers: {

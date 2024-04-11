@@ -22,13 +22,14 @@ import { BotAvatar } from "@/components/bot-avatar";
 import { Card, CardFooter } from "@/components/ui/card";
 import Image from "next/image";
 
-const Message = {
-  role: "",
-  content: ""
+
+interface Message {
+  role: "user" | "chat";
+  content: string;
 }
 
 const ImageGeneration = () => {
-  const [images, setImages] = useState<string[]>([])
+  const [messages, setMessages] = useState<Message[]>([])
   const router = useRouter()
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -40,17 +41,16 @@ const ImageGeneration = () => {
   const isLoading = form.formState.isSubmitting;
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      //      const userMessage = { role: "user", content: values.prompt }
-      //      const newMessages = [...messages, userMessage.content]
+      const userMessage: Message = { role: "user", content: values.prompt }
+      const newMessages = [...messages, userMessage]
 
-      setImages([]);
-      const response = await axios.post("/api/image-generation", { messages: values })
-      console.log(response.data)
-      const urls = [response.data]
-      setImages(urls);
+      const response = await axios.post("/api/image-generation", { messages: newMessages })
+      console.log(response)
+
+      const chatMessage: Message = { role: "chat", content: response.data }
+      setMessages((current) => [...current, chatMessage, userMessage]);
 
       form.reset();
-
     } catch (error: any) {
       console.log(error)
     }
@@ -78,7 +78,6 @@ const ImageGeneration = () => {
                 <FormItem className="col-span-12 lg:col-span-10">
                   <FormControl className="m-0 p-0">
                     <Input className="border-0 outline-none focus-visible:ring-0 focus-visible:ring-transparent" disabled={isLoading} placeholder="Red Horse in swiss alpe ." {...field} />
-
                   </FormControl>
                 </FormItem>
               )} />
@@ -90,24 +89,30 @@ const ImageGeneration = () => {
         </div>
         <div className="space-y-4 mt-4">
           {isLoading && <div className="p-20"><Loader /></div>}
-          {images.length === 0 && !isLoading && <p className="text-center"><Empty label="No images generated" /></p>}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mt-8">
-            {images.map((img, index) => (
-              <Card
-                key={index}
-                className="rounded-lg overflow-hidden"
-              >
-                <div className="relative aspect-square">
-                  < Image key={index} alt="" fill src={img} />
-                </div>
-
-                <CardFooter className="p-2">
-                  <Button onClick={() => { window.open(img) }} className="w-full" variant="secondary">
-                    <Download className="mr-2 h-4 w-4" />
-                    Download
-                  </Button>
-                </CardFooter>
-              </Card>
+          {messages.length === 0 && !isLoading && <p className="text-center"><Empty label="No images generated" /></p>}
+          <div className="flex flex-col-reverse gap-y-4">
+            {messages.map((message, index) => (
+              <div className={cn("p-8 w-full flex  items-start gap-x-8 rounded-lg", message.role === "user" ? "bg-white border border-black/10" : "bg-zinc-50/10 ")} key={index}>
+                {message.role === "user" ? <div className="flex items-starts gap-x-4"><UserAvatar /><p className="text-sm">{message.content}</p></div> :
+                  <div className="flex items-start gap-x-4">
+                    <BotAvatar />
+                    <Card
+                      key={index}
+                      className="rounded-lg overflow-hidden"
+                    >
+                      <div className="relative aspect-square">
+                        <Image key={index} alt="" width={512} height={512} src={message.content} />
+                      </div>
+                      <CardFooter className="p-2">
+                        <Button onClick={() => { window.open(message.content) }} className="w-full" variant="secondary">
+                          <Download className="mr-2 h-4 w-4" />
+                          Download
+                        </Button>
+                      </CardFooter>
+                    </Card>
+                  </div>
+                }
+              </div>
             ))}
           </div>
         </div>

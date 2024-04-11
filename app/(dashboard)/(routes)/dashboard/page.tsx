@@ -32,20 +32,7 @@ const tools = [
     color: "text-sky-700",
     bgColor: "bg-sky-500/10"
   },
-  {
-    label: "Image Classification",
-    icon: ImageIcon,
-    href: "/image-classification",
-    color: "text-violet-500",
-    bgColor: "bg-violet-500/10"
-  },
-  {
-    label: "Image To Text",
-    icon: LayoutList,
-    href: "/image-to-text",
-    color: "text-blue-700",
-    bgColor: "bg-blue-500/10"
-  },]
+]
 const DashboardPage = () => {
   const router = useRouter();
   return (

@@ -21,19 +21,19 @@ export async function POST(req: Request) {
       return new NextResponse("Message are required", { status: 400 })
     }
 
-    payload.inputs = messages[0]
+    payload.inputs = messages[messages.length - 1].content
     const response = await axios.post(`${configuration}/images/generation`,
       payload
       , {
         headers: {
-          'Content-Type': 'image/jpeg',
+          'Content-Type': 'application/json',
         },
       });
 
-    //console.log(response.data)
+    console.log(response.data)
     //console.log("http://localhost:8080/" + response.data.image_url)
-    const result = "http://localhost:8080/" + response.data.image_url
-    return NextResponse.json(result)
+    const result = `http://localhost:8080/` + response.data.image_url
+    return NextResponse.json(result, { status: 200 })
     //return NextResponse.json("All set", { status: 200 })
   }
   catch (e) {

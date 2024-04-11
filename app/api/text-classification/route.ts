@@ -20,7 +20,8 @@ export async function POST(req: Request) {
       return new NextResponse("Message are required", { status: 400 })
     }
 
-    payload.inputs = messages[0]
+
+    payload.inputs = messages[messages.length - 1].content
     const response = await axios.post(`${configuration}/texts/classification`,
       payload
       , {
@@ -29,7 +30,7 @@ export async function POST(req: Request) {
         },
       });
 
-    return NextResponse.json(response.data)
+    return NextResponse.json(response.data, { status: 200 })
     //return NextResponse.json("All set", { status: 200 })
 
   }

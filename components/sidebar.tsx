@@ -37,23 +37,6 @@ const routes = [
     href: "/image-generation",
     color: "text-sky-500"
   },
-  {
-    label: "Image Classification",
-    icon: ImageIcon,
-    href: "/image-classification",
-    color: "text-violet-500"
-  },
-  {
-    label: "Image To Text",
-    icon: LayoutList,
-    href: "/image-to-text",
-    color: "text-blue-700"
-  }, {
-    label: "Settings",
-    icon: Settings,
-    href: "/settings",
-  }
-
 ];
 const Sidebar = () => {
   const pathname = usePathname();

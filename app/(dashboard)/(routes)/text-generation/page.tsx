@@ -20,13 +20,13 @@ import { cn } from "@/lib/utils";
 import { UserAvatar } from "@/components/user-avatar";
 import { BotAvatar } from "@/components/bot-avatar";
 
-const Message = {
-  role: "",
-  content: ""
+interface Message {
+  role: "user" | "chat";
+  content: string;
 }
 
 const TextGeneration = () => {
-  const [messages, setMessages] = useState<typeof Message[]>([])
+  const [messages, setMessages] = useState<Message[]>([])
   const router = useRouter()
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -38,12 +38,12 @@ const TextGeneration = () => {
   const isLoading = form.formState.isSubmitting;
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      const userMessage = { role: "user", content: values.prompt }
-      const newMessages = [...messages, userMessage.content]
+      const userMessage: Message = { role: "user", content: values.prompt }
+      const newMessages = [...messages, userMessage]
 
       const response = await axios.post("/api/text-generation", { messages: newMessages })
-      //console.log(response.data.summary_text)
-      const chatMessage = { role: "chat", content: response.data.generated_text }
+      const chatMessage: Message = { role: "chat", content: response.data.generated_text }
+
       setMessages((current) => [...current, userMessage, chatMessage]);
       form.reset();
     } catch (error: any) {
@@ -86,22 +86,19 @@ const TextGeneration = () => {
           {isLoading && <div className="p-8 rounded-lg w-full flex items-center justify-center bg-muted"><Loader /></div>}
           {messages.length === 0 && !isLoading && <p className="text-center"><Empty label="No Conversation Started" /></p>}
           <div className="flex flex-col-reverse gap-y-4">
-            <div>
-              {messages.map((message) => (
-                <div
-                  className={cn("p-8 w-full flex items-start gap-x-8 rounded-lg", message.role === "user" ? "bg-white border border-black/10" : "bg-muted")}
-                  key={message.content}>
-                  {message.role === "user" ? <UserAvatar /> : <BotAvatar />}
-                  <p className="text-sm">{message.content}</p>
-                </div>
-              ))}
-            </div>
+            {messages.map((message, index) => (
+              <div
+                className={cn("p-8 w-full flex items-start gap-x-8 rounded-lg", message.role === "user" ? "bg-white border border-black/10" : "bg-muted")}
+                key={index}>
+                {message.role === "user" ? <UserAvatar /> : <BotAvatar />}
+                <p className="text-sm">{message.content}</p>
+              </div>
+            ))}
           </div>
         </div>
       </div>
     </div>
   )
-
 }
 
 export default TextGeneration;
