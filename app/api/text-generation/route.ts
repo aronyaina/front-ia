@@ -29,7 +29,6 @@ export async function POST(req: Request) {
           'Content-Type': 'application/json',
         },
       });
-
     return NextResponse.json(response.data)
     //return NextResponse.json("All set", { status: 200 })
 
